@@ -5,7 +5,7 @@ library(randomForest)
 library(caret)
 
 # 读取天津市区级行政区划的 JSON 文件
-json_path <- "D:\\GithubP\\Homework4\\Data\\Resource\\天津市.json"
+json_path <- "Data\\Resource\\天津市.json"
 tianjin_districts <- st_read(json_path)
 
 # 读取土壤特征的 tif 文件
