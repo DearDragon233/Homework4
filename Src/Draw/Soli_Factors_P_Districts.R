@@ -5,11 +5,9 @@ library(foreach)
 library(doParallel)
 library(broom)
 
-# === ⚙️ 用你的真实数据 ===
-# 假设你的数据框叫 summary_long，列包括 name, factor, value
-# 我这里直接引用 summary_long，替换模拟数据部分
-
-# 定义真实分组
+# 提前需运行获得model.R中的summary_long
+source("Src/Process/Model.R")
+#v分组
 group1 <- c("和平区", "河东区", "河西区", "河北区", "南开区", "红桥区")
 group2 <- c("滨海新区", "东丽区", "西青区", "北辰区", "武清区", "静海区")
 group3 <- c("津南区", "宁河区", "宝坻区", "蓟州区")
@@ -29,7 +27,7 @@ summary_long <- summary_long %>%
                   "pH Value" = "pH"),
   Value = value)
 
-# 设置并行
+# 设置并行运算
 numCores <- parallel::detectCores() - 1
 cl <- makeCluster(numCores)
 registerDoParallel(cl)
@@ -49,16 +47,14 @@ results <- foreach(d = unique(summary_long$District), .combine = rbind, .package
 # 停止并行
 stopCluster(cl)
 
-# 查看结果
 print(results)
 
-# 加载必要的包
-# 加载必要的包
+# 加载包
 library(dplyr)
 library(ggplot2)
 library(broom)
 
-# 假设的结果数据（已替换成你的真实数据）
+# 输入结果数据
 results <- data.frame(
   District = c("Group2", "Group2", "Group2", "Group2", "Group1", "Group1", "Group1", "Group1", 
                "Group3", "Group3", "Group3", "Group3", "Other", "Other", "Other", "Other"),
@@ -68,28 +64,27 @@ results <- data.frame(
               8.26e-04, 1.36e-05, 1.36e-04, 3.10e-06, NA, NA, NA, NA)
 )
 
-# 将p值转化为星号（根据新的阈值）
+# 将p值转化为星号
 results$p_significance <- ifelse(results$p.value < 2e-15, "4*", 
                                  ifelse(results$p.value < 1e-8, "3*", 
                                         ifelse(results$p.value < 0.005, "2*", 
                                                ifelse(results$p.value < 0.05, "*", "ns"))))
-
 # 对于NA值的p.value，设置为"ns"
 results$p_significance[is.na(results$p.value)] <- "ns"
 
 #为星号创建一个新的列，用来显示每个区间对应的星号
 results$p_significance_factor <- factor(results$p_significance, 
                                         levels = c("4*", "3*", "2*", "*", "ns"))
-# 绘制柱状图，并添加星号以及一个新的图例
+# ggplot2启动！
 ggplot(results, aes(x = Factor, y = Estimate, fill = District)) +
   geom_bar(stat = "identity", position = position_dodge(width = 0.75), width = 0.7) +
   geom_text(aes(label = p_significance, color = p_significance_factor), 
-            vjust = -0.5, size = 5, position = position_dodge(width = 0.75)) +  # 使用 position_dodge 以避免星号重叠
+            vjust = -0.5, size = 5, position = position_dodge(width = 0.75)) + 
   scale_fill_manual(values = c("Group1" = "lightblue", "Group2" = "lightgreen", "Group3" = "lightcoral", "Other" = "lightgray")) + 
   scale_color_manual(values = c("4*" = "red", "3*" = "lightcoral", "2*" = "orange", "*" = "green", "ns" = "blue")) +  # 为星号设定颜色
   labs(title = "Soil Factor Estimates by District with P-value", x = "Soil Factor", y = "Estimate Value") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   guides(fill = guide_legend(title = "District"), 
-         color = guide_legend(title = "Significance", order = 2))  # 为星号添加图例并调整图例顺序
+         color = guide_legend(title = "Significance", order = 2)) 
 
