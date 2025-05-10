@@ -87,7 +87,7 @@ split_districts <- list(
   c("武清区", "宝坻区", "静海区", "宁河区", "津南区", "NA")       # 西部和北部区域，其实津南是南边的（）
 )
 
-# 为每一组画图并
+# 循环ggplot2
 plots <- lapply(split_districts, function(d_group) {
   ggplot(summary_long %>% filter(name %in% d_group), 
          aes(x = reorder(factor, value), y = value, fill = factor)) +
@@ -96,25 +96,25 @@ plots <- lapply(split_districts, function(d_group) {
     coord_flip() +
     scale_fill_viridis(discrete = TRUE, option = "D") +
     labs(
-      title = "Importance Rank in Districts",  # 增加标题
+      title = "Importance Rank in Districts", 
       x = "Soil Factor", y = "Average Value", fill = "Soil Factor"
     ) +
-    theme_minimal(base_size = 14) +  # 增大整体字体
+    theme_minimal(base_size = 14) +
     theme(
       plot.title = element_text(size = 18, face = "bold"),
       strip.text = element_text(size = 10, face = "bold"),
       axis.text.y = element_text(size = 8),
-      axis.text.x = element_text(size = 8),  # 统一调整x轴文字大小
-      legend.position = "left",  # 图例左调
-      legend.justification = "top",  # 图例调整为上方
+      axis.text.x = element_text(size = 8), 
+      legend.position = "left", 
+      legend.justification = "top", 
       legend.box = "horizontal",
-      legend.text = element_text(size = 8),  # 图例文字大小
+      legend.text = element_text(size = 8), 
       panel.spacing = unit(1, "lines"),
-      axis.ticks.x = element_line(size = 0.5)  # 让x轴刻度线可见
+      axis.ticks.x = element_line(size = 0.5) 
     ) +
-    scale_x_discrete() +  # 替换为离散的x轴刻度
-    scale_fill_manual(values = c("Clay" = "#F4A300", "OCD" = "#D95F02", "Nitrogen" = "#1B9E77", "pH" = "#7570B3")) +  # 设置颜色
-    scale_y_continuous(labels = scales::comma)  # Y轴显示格式
+    scale_x_discrete() +
+    scale_fill_manual(values = c("Clay" = "#F4A300", "OCD" = "#D95F02", "Nitrogen" = "#1B9E77", "pH" = "#7570B3")) +
+    scale_y_continuous(labels = scales::comma) 
 }) 
 
 for (i in 1:length(plots)) {

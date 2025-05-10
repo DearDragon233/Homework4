@@ -1,4 +1,4 @@
-# 加载必要包
+# 加载包
 library(dplyr)
 library(ggplot2)
 library(foreach)
